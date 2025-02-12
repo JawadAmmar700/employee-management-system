@@ -156,3 +156,67 @@ export const getEmployees = async (): Promise<EmployeeType[]> => {
   const result = await db.all("SELECT * FROM employees;");
   return result;
 };
+
+type UpdateTimesheetType = {
+  update_timesheet_id: string;
+  employee_id: number;
+  start_time: string;
+  end_time: string;
+  work_location: string;
+  project_code: string;
+};
+
+export const updateTimesheet = async ({
+  employee_id,
+  start_time,
+  end_time,
+  work_location,
+  project_code,
+  update_timesheet_id,
+}: UpdateTimesheetType) => {
+  try {
+    const db = await getDB();
+
+    await db.run(
+      `UPDATE timesheets 
+       SET employee_id = ?, start_time = ?, end_time = ?, work_location = ?, project_code = ?
+       WHERE timesheets.id = ?`,
+      [
+        employee_id,
+        start_time,
+        end_time,
+        work_location,
+        project_code,
+        update_timesheet_id,
+      ]
+    );
+  } catch (error) {
+    throw new Error("Unsuccessful Update in timesheet table");
+  }
+};
+
+type InsertimesheetType = {
+  employee_id: number;
+  start_time: string;
+  end_time: string;
+  work_location: string;
+  project_code: string;
+};
+export const insertTimesheet = async ({
+  employee_id,
+  start_time,
+  end_time,
+  work_location,
+  project_code,
+}: InsertimesheetType) => {
+  try {
+    const db = await getDB();
+
+    await db.run(
+      "INSERT INTO timesheets (employee_id, start_time, end_time, work_location, project_code) VALUES (?, ?, ?, ?, ?)",
+      [employee_id, start_time, end_time, work_location, project_code]
+    );
+  } catch (error) {
+    return { error: "SomeThing Went Wrong? - Unsuccessful Mutation" };
+  }
+};

@@ -1,8 +1,8 @@
 import { Form } from "react-router";
-import type { FormType } from "~/utils/zod";
+import type { EmployeeDetailsType, EmployeeType } from "~/utils/zod";
 
 interface EmployeeFormProps {
-  employee: FormType;
+  employee: EmployeeType & EmployeeDetailsType;
   employeeId: string;
 }
 

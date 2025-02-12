@@ -4,6 +4,10 @@ import CalendarApp from "~/componets/schedule";
 import { getDB } from "~/db/getDB";
 import type { TimeSheetType } from "~/utils/zod";
 
+interface LoaderData {
+  timesheetsAndEmployees: (TimeSheetType & { full_name: string })[];
+}
+
 export async function loader() {
   const db = await getDB();
   const timesheetsAndEmployees = await db.all(
@@ -14,14 +18,14 @@ export async function loader() {
 }
 
 export default function TimesheetsPage() {
-  const { timesheetsAndEmployees } = useLoaderData();
+  const { timesheetsAndEmployees } = useLoaderData<LoaderData>();
   const [view, setView] = useState<"table" | "calendar">("table");
   return (
     <div className="mt-10">
       <div className="flex space-x-4 ml-10">
         <button
           onClick={() => setView("table")}
-          className={`px-4 py-2 rounded-lg focus:outline-none ${
+          className={`px-4 py-2 rounded-lg focus:outline-none cursor-pointer ${
             view === "table"
               ? "bg-indigo-600 text-white"
               : "bg-gray-200 text-gray-800 hover:bg-indigo-500 hover:text-white"
@@ -31,7 +35,7 @@ export default function TimesheetsPage() {
         </button>
         <button
           onClick={() => setView("calendar")}
-          className={`px-4 py-2 rounded-lg focus:outline-none ${
+          className={`px-4 py-2 rounded-lg focus:outline-none cursor-pointer  ${
             view === "calendar"
               ? "bg-indigo-600 text-white"
               : "bg-gray-200 text-gray-800 hover:bg-indigo-500 hover:text-white"
@@ -71,7 +75,7 @@ export default function TimesheetsPage() {
                 </tr>
               </thead>
               <tbody>
-                {timesheetsAndEmployees.map((timesheet: any) => (
+                {timesheetsAndEmployees.map((timesheet) => (
                   <tr key={timesheet.id} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-4 text-indigo-600 hover:text-indigo-800">
                       <a href={`/timesheets/new?id=${timesheet.id}`}>

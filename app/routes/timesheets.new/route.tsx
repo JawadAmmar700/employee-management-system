@@ -1,5 +1,13 @@
-import { useLoaderData, Form, redirect, useActionData } from "react-router";
+import { useLoaderData, redirect, useActionData } from "react-router";
 import { getDB } from "~/db/getDB";
+import type { ActionFunction } from "react-router";
+import TimesheetForm from "~/componets/timesheet-form";
+import {
+  timeSheetSchema,
+  type EmployeeType,
+  type TimeSheetType,
+} from "~/utils/zod";
+import { insertTimesheet, updateTimesheet } from "~/utils/queries";
 
 export async function loader({ request }: { request: { url: string } }) {
   const url = new URL(request.url);
@@ -18,16 +26,13 @@ export async function loader({ request }: { request: { url: string } }) {
      WHERE timesheets.id = ?`,
     [timeSheetId]
   );
+
+  if (!timeSheet) {
+    throw new Error("TimeSheet Not Found");
+  }
+
   return { employees, timeSheet: timeSheet[0], timeSheetId };
 }
-
-import type { ActionFunction } from "react-router";
-import TimesheetForm from "~/componets/timesheet-form";
-import {
-  timeSheetSchema,
-  type EmployeeType,
-  type TimeSheetType,
-} from "~/utils/zod";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -46,45 +51,15 @@ export const action: ActionFunction = async ({ request }) => {
   // Validate input using Zod
   const validation_result = timeSheetSchema.safeParse(data);
   if (!validation_result.success) {
-    console.log(validation_result.error.errors);
     return { error: validation_result.error.errors[0].message };
   }
 
-  const db = await getDB();
-
   if (update_timesheet_id != "new") {
-    //TODO update Time Sheet
-    await db.run(
-      `UPDATE timesheets 
-       SET employee_id = ?, start_time = ?, end_time = ?, work_location = ?, project_code = ?
-       WHERE timesheets.id = ?`,
-      [
-        data.employee_id,
-        data.start_time,
-        data.end_time,
-        data.work_location,
-        data.project_code,
-        update_timesheet_id,
-      ]
-    );
+    await updateTimesheet({ update_timesheet_id, ...data });
     return redirect("/timesheets");
   }
 
-  try {
-    //TODO Insert the time sheet into the database
-    await db.run(
-      "INSERT INTO timesheets (employee_id, start_time, end_time, work_location, project_code) VALUES (?, ?, ?, ?, ?)",
-      [
-        data.employee_id,
-        data.start_time,
-        data.end_time,
-        data.work_location,
-        data.project_code,
-      ]
-    );
-  } catch (error) {
-    return { error: "SomeThing Went Wrong? - Unsuccessful Mutation" };
-  }
+  await insertTimesheet(data);
 
   return redirect("/timesheets");
 };
@@ -93,14 +68,30 @@ interface validationError {
   error: string;
 }
 
+interface LoaderData {
+  employees: EmployeeType[];
+  timeSheet: TimeSheetType;
+  timeSheetId: string;
+}
 export default function NewTimesheetPage() {
   const validationError = useActionData<validationError>();
-  const { employees, timeSheet, timeSheetId } = useLoaderData();
+  const { employees, timeSheet, timeSheetId } = useLoaderData<LoaderData>();
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-        Create/Update Timesheet
-      </h1>
+      <div className="flex w-full justify-between items-center">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-6">
+          Create/Update Timesheet
+        </h1>
+        {timeSheetId !== "new" && (
+          <a
+            href={`/employees/new?id=${timeSheet.employee_id}`}
+            className="hover:text-blue-500"
+          >
+            View Employee
+          </a>
+        )}
+      </div>
 
       <TimesheetForm
         employees={employees}

@@ -1,4 +1,4 @@
-import { optional, z } from "zod";
+import { z } from "zod";
 
 export const employeeSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"),
@@ -68,8 +68,6 @@ export const employeeSchema = z.object({
   }),
   office_location: z.string().optional(),
 });
-
-export type FormType = z.infer<typeof employeeSchema>;
 
 export type EmployeeType = {
   id?: string;

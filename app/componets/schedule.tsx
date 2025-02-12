@@ -12,12 +12,11 @@ import { useEffect, useState } from "react";
 import type { TimeSheetType } from "~/utils/zod";
 
 type CalendarEventTypes = {
-  timesheets: any[];
+  timesheets: (TimeSheetType & { full_name: string })[];
 };
 
 function CalendarApp({ timesheets }: CalendarEventTypes) {
   const eventsService = useState(() => createEventsServicePlugin())[0];
-  console.log(timesheets);
   const calendar = useCalendarApp({
     views: [
       createViewDay(),
@@ -39,7 +38,6 @@ function CalendarApp({ timesheets }: CalendarEventTypes) {
   });
 
   useEffect(() => {
-    // get all events
     eventsService.getAll();
   }, []);
 

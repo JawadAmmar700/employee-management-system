@@ -32,6 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <title>EMS</title>
       </head>
       <body>
         <Navbar />
@@ -53,25 +54,29 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    message = error.status === 404 ? "404 - Not Found" : "Error";
     details =
       error.status === 404
-        ? "The requested page could not be found."
+        ? "The page you’re looking for doesn’t exist."
         : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
+  } else if (import.meta.env.DEV && error instanceof Error) {
+    details = "The page you’re looking for doesn’t exist.";
     stack = error.stack;
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main className="flex flex-col items-center justify-center  text-center px-6 mt-10">
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full border border-gray-200">
+        <h1 className="text-4xl font-bold text-red-600">{message}</h1>
+        <p className="mt-2 text-gray-700">{details}</p>
+
+        <a
+          href="/"
+          className="mt-6 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-700 transition"
+        >
+          Go Home
+        </a>
+      </div>
     </main>
   );
 }

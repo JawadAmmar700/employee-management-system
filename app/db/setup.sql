@@ -1,20 +1,6 @@
--- This file contains the SQL schema, it drops all tables and recreates them
-
 DROP TABLE IF EXISTS employees;
 DROP TABLE IF EXISTS employee_details;  
 DROP TABLE IF EXISTS timesheets;
-
--- To add a field to a table do
--- CREATE TABLE table_name (
---     id INTEGER PRIMARY KEY AUTOINCREMENT,
---     nullable_field TEXT,
---     non_nullable_field TEXT NOT NULL,
---     numeric_field INTEGER,
---     unique_field TEXT UNIQUE,
---     unique_non_nullable_field TEXT NOT NULL UNIQUE,
---     date_field DATE,
---     datetime_field DATETIME
--- );
 
 
 CREATE TABLE employees (
@@ -29,12 +15,11 @@ CREATE TABLE employees (
     zip_code TEXT,
     country TEXT,
     hire_date DATE NOT NULL,
-    status TEXT CHECK (status IN ('Active', 'Inactive', 'Terminated')) DEFAULT 'Active',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create employee details table (Professional details)
+
 CREATE TABLE employee_details (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     employee_id INTEGER NOT NULL,
@@ -46,7 +31,7 @@ CREATE TABLE employee_details (
     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
 );
 
--- Create timesheets table (Work tracking)
+
 CREATE TABLE timesheets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     employee_id INTEGER NOT NULL,

@@ -5,14 +5,17 @@ import {
   type ActionFunction,
 } from "react-router";
 import EmployeeForm from "~/componets/employee-form";
-import { getDB } from "~/db/getDB";
 import {
   getEmployeeByEmail,
   getEmployeeById,
   insertEmployee,
   updateEmployee,
 } from "~/utils/queries";
-import { employeeSchema } from "~/utils/zod";
+import {
+  employeeSchema,
+  type EmployeeDetailsType,
+  type EmployeeType,
+} from "~/utils/zod";
 
 export async function loader({ request }: { request: { url: string } }) {
   const url = new URL(request.url);
@@ -21,15 +24,9 @@ export async function loader({ request }: { request: { url: string } }) {
   if (!employeeId) {
     return { employee: {}, employeeId: "new" };
   }
-
-  try {
-    // Use the query function to get the employee by ID
-    const employee = await getEmployeeById(employeeId);
-
-    return { employee, employeeId };
-  } catch (error) {
-    return new Response("This Record is not in the database.", { status: 404 });
-  }
+  // Use the query function to get the employee by ID
+  const employee = await getEmployeeById(employeeId);
+  return { employee, employeeId };
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -43,8 +40,6 @@ export const action: ActionFunction = async ({ request }) => {
   if (!validation_result.success) {
     return { error: validation_result.error.errors[0].message };
   }
-
-  const db = await getDB();
 
   if (update_employee_id != "new") {
     await updateEmployee({ update_employee_id, ...validation_result.data });
@@ -60,12 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
     return { error: "Employee with this email already exists" };
   }
 
-  try {
-    // Insert the employee into the database
-    await insertEmployee({ ...validation_result.data });
-  } catch (error) {
-    return { error: "SomeThing Went Wrong? - Unsuccessful Mutation" };
-  }
+  await insertEmployee({ ...validation_result.data });
 
   return redirect("/employees");
 };
@@ -74,9 +64,14 @@ interface validationError {
   error: string;
 }
 
+interface LoaderData {
+  employee: EmployeeType & EmployeeDetailsType;
+  employeeId: string;
+}
+
 export default function NewEmployeePage() {
   const validationError = useActionData<validationError>();
-  const { employee, employeeId } = useLoaderData();
+  const { employee, employeeId } = useLoaderData<LoaderData>();
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">

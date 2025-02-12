@@ -1,9 +1,14 @@
 import { useLoaderData } from "react-router";
 import { getDB } from "~/db/getDB";
+import type { EmployeeDetailsType, EmployeeType } from "~/utils/zod";
 
 type ParamsType = {
   employeeId: string;
 };
+
+interface LoaderData {
+  employee: EmployeeType & EmployeeDetailsType;
+}
 
 export async function loader({ params }: { params: ParamsType }) {
   const db = await getDB();
@@ -16,7 +21,7 @@ export async function loader({ params }: { params: ParamsType }) {
 }
 
 export default function EmployeePage() {
-  const { employee } = useLoaderData();
+  const { employee } = useLoaderData<LoaderData>();
 
   return (
     <div className="max-w-5xl mx-auto p-8 bg-white rounded-xl shadow-lg mt-10">
