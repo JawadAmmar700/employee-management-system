@@ -32,6 +32,7 @@ export async function loader({ request }: { request: { url: string } }) {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
+  console.log(data);
 
   const update_employee_id = data.update_employee_id.toString();
 
