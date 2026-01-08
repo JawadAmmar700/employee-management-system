@@ -13,7 +13,7 @@
   "dependencies": {
     "@hookform/resolvers": "^4.0.0",
     "@react-router/fs-routes": "^7.1.5",
-    "@react-router/node": "^7.1.5",
+    "@react-router/node": "^7.9.4",
     "@react-router/serve": "^7.1.5",
     "@schedule-x/events-service": "^2.19.0",
     "@schedule-x/react": "^2.19.0",
